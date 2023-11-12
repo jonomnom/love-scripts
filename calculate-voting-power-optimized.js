@@ -3,8 +3,12 @@ const fs = require("fs");
 const loveFarmAbi = require("./lovefarm-abi");
 const ethers = require("ethers");
 const uniswapV2Abi = require("./uniswapV2-abi");
-const jsonRpcUrl =
-  "https://eth-mainnet.g.alchemy.com/v2/0K9ALmqyXt5Lv6GVijR8psVx2C8K3-6Y";
+require('dotenv').config()
+const jsonRpcUrl = process.env.JSON_RPC_URL
+
+if (!jsonRpcUrl) {
+  throw new Error('JSON_RPC_URL not set')
+}
 
 const provider = new ethers.providers.JsonRpcProvider(jsonRpcUrl);
 
@@ -305,7 +309,7 @@ const main = async () => {
     }
 
     // faith calculation
-    const faithInLove = faithBalance;
+    const faithInLove = faithBalance.mul(prices.faith).div(ethers.BigNumber.from(ethers.utils.parseEther("1")));
     loveBalance = loveBalance.add(faithInLove);
 
     // war3 calculation
@@ -317,10 +321,8 @@ const main = async () => {
     loveBalance = loveBalance.toString();
     loveBalances.push(loveBalance);
     addresses.push(addr);
-    console.log('hi')
-    if (((n - startPosition) % 10 === 0 || n === addrs.length - 1) && n !== startPosition) { // NOTE: edge case where sometimes the last address will not be added to csv
-      console.log('hi')
-      // every 100 add to csv
+    if (((n - startPosition) % 50 === 0 || n === addrs.length - 1) && n !== startPosition) { // NOTE: edge case where sometimes the last address will not be added to csv
+      // every 50 add to csv
       //https://snapshot.org/#/strategy/spreadsheet
       let str = "";
       while (loveBalances.length > 0) {
